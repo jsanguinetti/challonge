@@ -1,0 +1,36 @@
+{
+  "name": "challonge",
+  "description": "This app is a challonge wrapper",
+  "keywords": [
+    "nestjs",
+    "javascript",
+    "node",
+    "nodejs",
+    "api",
+    "challonge"
+  ],
+  "repository": "https://github.com/jsanguinetti/nestjs-boilerplate-heroku",
+  "env": {
+    "API_KEY": {
+      "description": "A secret key that must be submitted in all requests.",
+      "generator": "secret"
+    },
+    "NODE_ENV": {
+      "value": "production"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
