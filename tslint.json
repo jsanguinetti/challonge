@@ -1,8 +1,7 @@
 {
     "defaultSeverity": "error",
     "extends": [],
-    "jsRules": {
-    },
+    "jsRules": {},
     "rules": {
         "trailing-comma": false,
         "quotemark": [
@@ -29,6 +28,10 @@
         ],
         "one-variable-per-declaration": [
             false
+        ],
+        "semicolon": [
+            true,
+            "always"
         ]
     },
     "rulesDirectory": []

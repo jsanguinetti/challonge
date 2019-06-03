@@ -3,10 +3,12 @@ import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ChallongeModule } from '../challonge/challonge.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User])
+        TypeOrmModule.forFeature([User]),
+        ChallongeModule,
     ],
     providers: [UsersService],
     controllers: [UsersController],

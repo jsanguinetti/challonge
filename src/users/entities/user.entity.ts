@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, BeforeUpdate, QueryFailedError } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
-import { IUser, IDbUser } from '../user.interface'
 
 @Entity('users')
 export class User {
@@ -21,17 +20,19 @@ export class User {
 
     @Column()
     @IsNotEmpty()
-    public challonge_id: string;
+    public challonge_id: number;
 
     @Column()
     public challonge_avatar_url: string;
 
     public toJSON() {
         return {
+            id: this.id,
             externalId: this.external_id,
             externalUsername: this.external_username,
             challongeUsername: this.challonge_username,
+            challongeId: this.challonge_id,
             challongeAvatarUrl: this.challonge_avatar_url
-        }
+        };
     }
 }

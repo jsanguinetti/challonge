@@ -1,7 +1,9 @@
 export interface IUser {
+    readonly id: number;
     readonly externalId: string;
     readonly externalUsername: string;
     readonly challongeUsername: string;
+    readonly challongeAvatarUrl: string;
 }
 
 export interface ICreateUser {
