@@ -9,7 +9,7 @@
       "foreman": "foreman start -f Procfile.dev",
       "prestart:prod": "yarn tsc",
       "start:prod": "node dist/main.js",
-      "migrations:generate": "yarn ts-node ./node_modules/typeorm/cli.js migrations:generate",
+      "migration:generate": "yarn ts-node ./node_modules/typeorm/cli.js migration:generate",
       "migration:run": "yarn ts-node ./node_modules/typeorm/cli.js migration:run",
       "migration:revert": "yarn ts-node ./node_modules/typeorm/cli.js migration:revert",
       "migration:run:prod": "yarn tsc && yarn ts-node ./node_modules/typeorm/cli.js migration:run",

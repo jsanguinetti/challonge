@@ -1,18 +1,17 @@
-export interface AuthToken {
-    accessToken: string;
-}
-
 export interface IUser {
-    readonly email: string;
-    readonly tokens: AuthToken[];
-
-    readonly firstName: string;
-    readonly lastName: string;
+    readonly externalId: string;
+    readonly externalUsername: string;
+    readonly challongeUsername: string;
 }
 
 export interface ICreateUser {
-    email: string;
-    firstName: string;
-    lastName?: string;
-    age?: number;
+    externalId: string;
+    externalUsername: string;
+    challongeUsername: string;
+}
+
+export interface IDbUser {
+    external_id: string;
+    external_username: string;
+    challonge_username: string;
 }
