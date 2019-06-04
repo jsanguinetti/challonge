@@ -2,6 +2,11 @@ export interface ITournamentParticipantsParameters {
   tournamentId: string | number;
 }
 
+export interface ITournamentMatchesParameters {
+  tournamentId: string | number;
+  participantId: number;
+}
+
 export interface ITournamentParticipantResponse {
   participant: ITournamentParticipant;
 }
@@ -42,4 +47,18 @@ export interface ITournament {
   full_challonge_url: string;
   game_name: string;
   name: string;
+}
+
+export interface IMatchResponse {
+  match: IMatch;
+}
+export interface IMatch {
+  readonly id: number;
+  readonly state: 'complete' | 'open';
+  readonly player1_id: number;
+  readonly player2_id: number;
+  readonly scores_csv: string;
+  readonly winner_id: number;
+  readonly loser_id: number;
+  readonly suggested_play_order: number;
 }

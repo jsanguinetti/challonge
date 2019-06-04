@@ -5,13 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
+import { MatchesModule } from './matches/matches.module';
 
 @Module({
     imports: [
         TypeOrmModule.forRoot(),
         UsersModule,
         AuthModule,
-        TournamentsModule
+        TournamentsModule,
+        MatchesModule
     ],
     controllers: [AppController]
 })

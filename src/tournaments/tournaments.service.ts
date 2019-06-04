@@ -30,6 +30,10 @@ export class TournamentsService {
     return !!deleteResult.affected;
   }
 
+  public async getTournament(id: number): Promise<ITournament> {
+    return (await this.find(id)).toJSON();
+  }
+
   public async getLatest(): Promise<ITournament> {
     const tournament = await this.tournamentRepository.findOneOrFail(null, { order: { id: 'DESC' } });
     return tournament.toJSON();

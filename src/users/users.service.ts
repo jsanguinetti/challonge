@@ -16,14 +16,30 @@ export class UsersService {
         private readonly tournamentsService: TournamentsService,
     ) { }
 
-    async validate(externalId: string): Promise<boolean> {
-        const foundUser = await this.userRepository.findOne(externalId);
-        if (!foundUser) throw { err: 'Invalid user.' };
-
-        return !!foundUser;
+    public async getUser(id: string): Promise<IUser> {
+        const users = await this.userRepository.find({ external_id: id });
+        return users[0] && users[0].toJSON();
     }
 
-    async create(userParams: ICreateUser): Promise<IUser> {
+    public async findOrCreateFromChallongeId(challongeId: number): Promise<IUser> {
+        const latestTournament = await this.tournamentsService.getLatest();
+        const [userEntity, challongeUser] = await Promise.all([
+            this.userRepository.findOne({ challonge_id: challongeId }),
+            this.challongeService.findUserById(challongeId, latestTournament.challongeId)
+        ]);
+        if (userEntity) {
+            return userEntity.toJSON();
+        } else {
+            const newUser = this.userRepository.create({
+                challonge_avatar_url: challongeUser.attachedParticipatablePortraitUrl,
+                challonge_id: challongeUser.id,
+                challonge_username: challongeUser.challongeUsername
+            });
+            return (await this.userRepository.save(newUser)).toJSON();
+        }
+    }
+
+    public async create(userParams: ICreateUser): Promise<IUser> {
         const latestTournament = await this.tournamentsService.getLatest();
         const [userEntity, challongeUser] = await Promise.all([
             this.findOrCreateUser(userParams),
@@ -31,6 +47,8 @@ export class UsersService {
         ]);
         const avatarUrl = this.challongeService.avatarUrl(challongeUser);
         const updatedUser = await this.updateUser(userEntity, {
+            external_id: userParams.externalId,
+            external_username: userParams.externalUsername,
             challonge_username: challongeUser.challongeUsername,
             challonge_id: challongeUser.id,
             challonge_avatar_url: `${avatarUrl}`
@@ -39,7 +57,13 @@ export class UsersService {
     }
 
     private async findOrCreateUser(user: ICreateUser): Promise<User> {
-        const existingUser = await this.userRepository.find({ external_id: user.externalId });
+        let query = this.userRepository.createQueryBuilder().where('challonge_username = :challongeUsername');
+        if (user.externalId) {
+            query = query
+                .orWhere('external_id = :externalId');
+        }
+        const existingUser = await query.setParameters({ ...user }).getOne();
+
         if (existingUser[0]) {
             return existingUser[0];
         } else {

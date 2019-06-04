@@ -27,10 +27,10 @@ export class Tournament {
   @IsNotEmpty()
   public game_name: string;
 
-  @CreateDateColumn({ type: 'timestamp', name: 'create_date', default: () => 'LOCALTIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp', name: 'create_date' })
   public createDate: string;
 
-  @UpdateDateColumn({ type: 'timestamp', name: 'update_date', default: () => 'LOCALTIMESTAMP' })
+  @UpdateDateColumn({ type: 'timestamp', name: 'update_date' })
   public updateDate: string;
 
   public toJSON() {

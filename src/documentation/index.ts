@@ -10,6 +10,7 @@ export function initDocumentation(app: INestApplication, initData: IInitDocument
         .setSchemes('http', 'https')
         .addTag('users')
         .addTag('tournaments')
+        .addTag('matches')
         .addBearerAuth('api_key', 'header');
 
     if (initData.tag && initData.tag.length) {

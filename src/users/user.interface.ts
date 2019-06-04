@@ -1,6 +1,7 @@
 export interface IUser {
     readonly id: number;
     readonly externalId: string;
+    readonly challongeId: number;
     readonly externalUsername: string;
     readonly challongeUsername: string;
     readonly challongeAvatarUrl: string;

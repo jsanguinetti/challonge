@@ -8,7 +8,6 @@ export class User {
     public id: number;
 
     @Column()
-    @IsNotEmpty()
     public external_id: string;
 
     @Column()
