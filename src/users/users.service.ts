@@ -21,15 +21,17 @@ export class UsersService {
         return !!foundUser;
     }
 
-    async create(user: ICreateUser): Promise<IUser> {
-        const [userEntity, challongeUser] = await Promise.all([this.findOrCreateUser(user), this.challongeService.findUser(user.challongeUsername)]);
+    async create(userParams: ICreateUser): Promise<IUser> {
+        const [userEntity, challongeUser] = await Promise.all([
+            this.findOrCreateUser(userParams),
+            this.challongeService.findUser(userParams.challongeUsername)
+        ]);
         const avatarUrl = this.challongeService.avatarUrl(challongeUser);
-        const updatedUser = this.userRepository.merge(userEntity, {
+        const updatedUser = await this.updateUser(userEntity, {
             challonge_username: challongeUser.challonge_username,
             challonge_id: challongeUser.id,
             challonge_avatar_url: `${avatarUrl}`
         });
-        await this.userRepository.save(updatedUser);
         return updatedUser.toJSON();
     }
 
@@ -48,5 +50,10 @@ export class UsersService {
             external_username: user.externalUsername,
             challonge_username: user.challongeUsername
         });
+    }
+
+    private async updateUser(user: User, attributes: Partial<User>): Promise<User> {
+        const userToBeUpdated = this.userRepository.merge(user, attributes);
+        return await this.userRepository.save(userToBeUpdated);
     }
 }

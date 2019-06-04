@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { LoginDto } from './auth.dto';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth } from '@nestjs/swagger'
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 @ApiBearerAuth()

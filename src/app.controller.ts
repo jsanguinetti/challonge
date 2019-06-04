@@ -1,5 +1,5 @@
 import { Get, Controller } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger'
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller()
 @ApiBearerAuth()

@@ -5,12 +5,12 @@ env.config();
 
 import * as bodyParser from 'body-parser';
 
-import { NestExpressApplication } from '@nestjs/platform-express'
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './app.module';
 import { initDocumentation } from './documentation';
 import { EntitiesExceptionFilter } from './http-exception.filter';
-import { ApiKeyGlobalGuard } from './api-key.guard'
+import { ApiKeyGlobalGuard } from './api-key.guard';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(ApplicationModule);
@@ -20,7 +20,7 @@ async function bootstrap() {
     app.use(bodyParser.urlencoded({ extended: false }));
 
     app.useGlobalFilters(new EntitiesExceptionFilter());
-    app.useGlobalGuards(new ApiKeyGlobalGuard)
+    app.useGlobalGuards(new ApiKeyGlobalGuard);
 
     initDocumentation(app, {
         version: '1.0.0',

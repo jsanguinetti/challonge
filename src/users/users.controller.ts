@@ -1,5 +1,5 @@
 import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger'
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 
 @Controller('users')

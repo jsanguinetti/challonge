@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableColumn } from 'typeorm';
 
 export class AddChallongeIdAndChallongeAvatarUrlToUser1559574478332 implements MigrationInterface {
 
@@ -9,7 +9,7 @@ export class AddChallongeIdAndChallongeAvatarUrlToUser1559574478332 implements M
     }), new TableColumn({
         name: 'challonge_avatar_url',
         type: 'varchar'
-    })]
+    })];
 
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.addColumns('users', this.TABLE_COLUMNS);

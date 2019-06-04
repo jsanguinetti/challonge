@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ITournamentParticipantsParameters, ITournamentParticipantResponse } from './challongeApi.interface'
-import axios from 'axios'
+import { ITournamentParticipantsParameters, ITournamentParticipantResponse } from './challongeApi.interface';
+import axios from 'axios';
 
 @Injectable()
 export class ChallongeApiService {
@@ -11,10 +11,10 @@ export class ChallongeApiService {
   }
 
   private tournamentsRequestPath(tournamentId: string) {
-    return `tournaments/${tournamentId}/`
+    return `tournaments/${tournamentId}/`;
   }
 
   private baseRequestUrl() {
-    return `https://${process.env.CHALLONGE_KEY}@api.challonge.com/v1/`
+    return `https://${process.env.CHALLONGE_KEY}@api.challonge.com/v1/`;
   }
 }

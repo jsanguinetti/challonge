@@ -11,7 +11,7 @@ export class UserMigration1517440514104 implements MigrationInterface {
                 { name: 'external_username', type: 'varchar', isNullable: false, isUnique: true },
                 { name: 'challonge_username', type: 'varchar', isNullable: false },
             ]
-        }))
+        }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {

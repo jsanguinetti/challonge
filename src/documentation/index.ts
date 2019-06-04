@@ -8,7 +8,7 @@ export function initDocumentation(app: INestApplication, initData: IInitDocument
         .setDescription(initData.description)
         .setVersion(initData.version)
         .setSchemes('http', 'https')
-        .addBearerAuth('api_key', 'header')
+        .addBearerAuth('api_key', 'header');
 
     if (initData.tag && initData.tag.length) {
         initData.tag.forEach((singleTag) => {

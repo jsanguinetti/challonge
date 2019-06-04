@@ -12,14 +12,14 @@ export class ChallongeService {
     const tournament = tournamentId ? this.findTournament(tournamentId) : this.latestTournament();
     const participantsResponse = await this.challongeApiService.tournamentParticipants({ tournamentId: tournament });
     const participants: ITournamentParticipant[] = participantsResponse.map((p) => p.participant);
-    return participants.find((p) => challongeUsername == p.challonge_username)
+    return participants.find((p) => challongeUsername == p.challonge_username);
   }
 
   public avatarUrl(challongeUser: ITournamentParticipant) {
     if (challongeUser.attached_participatable_portrait_url.startsWith('//')) {
-      return 'https:' + challongeUser.attached_participatable_portrait_url
+      return 'https:' + challongeUser.attached_participatable_portrait_url;
     } else {
-      return challongeUser.attached_participatable_portrait_url
+      return challongeUser.attached_participatable_portrait_url;
     }
   }
 
