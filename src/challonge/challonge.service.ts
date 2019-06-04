@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ChallongeApiService } from '../challongeApi/challongeApi.service';
-import { ITournamentParticipant, ITournamentParticipantResponse } from '../challongeApi/challongeApi.interface';
+import { ITournamentParticipant, ITournament } from '../challongeApi/challongeApi.interface';
+import { IChallongeTournament, IChallongeUser } from './challonge.interface';
 
 @Injectable()
 export class ChallongeService {
@@ -8,26 +9,31 @@ export class ChallongeService {
     private readonly challongeApiService: ChallongeApiService
   ) { }
 
-  public async findUser(challongeUsername: string, tournamentId?: number): Promise<ITournamentParticipant> {
-    const tournament = tournamentId ? this.findTournament(tournamentId) : this.latestTournament();
-    const participantsResponse = await this.challongeApiService.tournamentParticipants({ tournamentId: tournament });
+  public async findUser(challongeUsername: string, tournamentId: number): Promise<IChallongeUser> {
+    const participantsResponse = await this.challongeApiService.tournamentParticipants({ tournamentId: tournamentId });
     const participants: ITournamentParticipant[] = participantsResponse.map((p) => p.participant);
-    return participants.find((p) => challongeUsername == p.challonge_username);
+    const participant = participants.find((p) => challongeUsername == p.challonge_username);
+    return {
+      ...participant,
+      challongeUsername,
+      attachedParticipatablePortraitUrl: participant.attached_participatable_portrait_url,
+    };
   }
 
-  public avatarUrl(challongeUser: ITournamentParticipant) {
-    if (challongeUser.attached_participatable_portrait_url.startsWith('//')) {
-      return 'https:' + challongeUser.attached_participatable_portrait_url;
+  public async getTournament(challongeIdAlias: string): Promise<IChallongeTournament> {
+    const tournament = (await this.challongeApiService.tournament(challongeIdAlias)).tournament;
+    return {
+      ...tournament,
+      fullChallongeUrl: tournament.full_challonge_url,
+      gameName: tournament.game_name
+    };
+  }
+
+  public avatarUrl(challongeUser: IChallongeUser) {
+    if (challongeUser.attachedParticipatablePortraitUrl.startsWith('//')) {
+      return 'https:' + challongeUser.attachedParticipatablePortraitUrl;
     } else {
-      return challongeUser.attached_participatable_portrait_url;
+      return challongeUser.attachedParticipatablePortraitUrl;
     }
-  }
-
-  private latestTournament(): string {
-    return 'codigodelsur-8a6hscg9';
-  }
-
-  private findTournament(tournamentId: number) {
-    return this.latestTournament();
   }
 }

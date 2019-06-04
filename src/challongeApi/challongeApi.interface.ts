@@ -1,5 +1,5 @@
 export interface ITournamentParticipantsParameters {
-  tournamentId: string;
+  tournamentId: string | number;
 }
 
 export interface ITournamentParticipantResponse {
@@ -31,4 +31,15 @@ export interface ITournamentParticipant {
   check_in_open: boolean;
   group_player_ids: [];
   has_irrelevant_seed: boolean;
+}
+
+export interface ITournamentResponse {
+  tournament: ITournament;
+}
+
+export interface ITournament {
+  id: number;
+  full_challonge_url: string;
+  game_name: string;
+  name: string;
 }

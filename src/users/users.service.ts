@@ -1,9 +1,10 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { ICreateUser, IUser, IDbUser } from './user.interface';
+import { ICreateUser, IUser } from './user.interface';
 import { ChallongeService } from '../challonge/challonge.service';
+import { TournamentsService } from '../tournaments/tournaments.service';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +13,7 @@ export class UsersService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         private readonly challongeService: ChallongeService,
+        private readonly tournamentsService: TournamentsService,
     ) { }
 
     async validate(externalId: string): Promise<boolean> {
@@ -22,13 +24,14 @@ export class UsersService {
     }
 
     async create(userParams: ICreateUser): Promise<IUser> {
+        const latestTournament = await this.tournamentsService.getLatest();
         const [userEntity, challongeUser] = await Promise.all([
             this.findOrCreateUser(userParams),
-            this.challongeService.findUser(userParams.challongeUsername)
+            this.challongeService.findUser(userParams.challongeUsername, latestTournament.challongeId)
         ]);
         const avatarUrl = this.challongeService.avatarUrl(challongeUser);
         const updatedUser = await this.updateUser(userEntity, {
-            challonge_username: challongeUser.challonge_username,
+            challonge_username: challongeUser.challongeUsername,
             challonge_id: challongeUser.id,
             challonge_avatar_url: `${avatarUrl}`
         });

@@ -9,7 +9,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './app.module';
 import { initDocumentation } from './documentation';
-import { EntitiesExceptionFilter } from './http-exception.filter';
+import { QueryFailedErrorExceptionFilter } from './http-exception.filter';
 import { ApiKeyGlobalGuard } from './api-key.guard';
 
 async function bootstrap() {
@@ -19,7 +19,7 @@ async function bootstrap() {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
 
-    app.useGlobalFilters(new EntitiesExceptionFilter());
+    app.useGlobalFilters(new QueryFailedErrorExceptionFilter());
     app.useGlobalGuards(new ApiKeyGlobalGuard);
 
     initDocumentation(app, {
