@@ -9,7 +9,7 @@
     "api",
     "challonge"
   ],
-  "repository": "https://github.com/jsanguinetti/nestjs-boilerplate-heroku",
+  "repository": "https://github.com/jsanguinetti/challonge",
   "env": {
     "API_KEY": {
       "description": "A secret key that must be submitted in all requests.",

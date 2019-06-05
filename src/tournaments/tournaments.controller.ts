@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Put, Param, Delete, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiUseTags, ApiImplicitParam } from '@nestjs/swagger';
 import { CreateTournamentDto, UpdateTournamentDto } from './tournament.dto';
 import { TournamentsService } from './tournaments.service';
@@ -10,6 +10,11 @@ export class TournamentsController {
   constructor(
     private readonly tournamentsService: TournamentsService,
   ) { }
+
+  @Get()
+  public async index() {
+    return this.tournamentsService.list();
+  }
 
   @Post()
   public async create(@Body() body: CreateTournamentDto) {

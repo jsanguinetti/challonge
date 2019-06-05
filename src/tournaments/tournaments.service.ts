@@ -13,6 +13,10 @@ export class TournamentsService {
     private readonly challongeService: ChallongeService,
   ) { }
 
+  public async list(): Promise<ITournament[]> {
+    return (await this.tournamentRepository.find()).map(t => t.toJSON());
+  }
+
   public async create(tournamentParams: ICreateTournament): Promise<ITournament> {
     const tournament = await this.createTournament(tournamentParams);
     const createdTournament = await this.tournamentRepository.save(tournament);
