@@ -64,8 +64,8 @@ export class UsersService {
         }
         const existingUser = await query.setParameters({ ...user }).getOne();
 
-        if (existingUser[0]) {
-            return existingUser[0];
+        if (existingUser) {
+            return existingUser;
         } else {
             return this.buildUserEntity(user);
         }
