@@ -1,10 +1,11 @@
-import { Injectable } from "@nestjs/common";
-import { ChallongeService } from "../challonge/challonge.service";
-import { TournamentsService } from "../tournaments/tournaments.service";
-import { IMatch } from "./match.interface";
-import { UsersService } from "../users/users.service";
-import { IUser } from "../users/user.interface";
-import { IChallongeMatch } from "../challonge/challonge.interface";
+import { Injectable } from '@nestjs/common';
+import { ChallongeService } from '../challonge/challonge.service';
+import { TournamentsService } from '../tournaments/tournaments.service';
+import { IMatch } from './match.interface';
+import { UsersService } from '../users/users.service';
+import { IUser } from '../users/user.interface';
+import { IChallongeMatch } from '../challonge/challonge.interface';
+import { ITournament } from '../tournaments/tournament.interface';
 
 interface ListMatchesParams {
   tournamentId?: number;
@@ -30,7 +31,7 @@ export class MatchesService {
       user.challongeId
     );
     const matches = await Promise.all(
-      challongeMatches.map(this.buildMatch(user))
+      challongeMatches.map(this.buildMatch(user, tournament))
     );
     return matches;
   }
@@ -43,7 +44,10 @@ export class MatchesService {
     }
   }
 
-  private buildMatch(user: IUser): ChallongeMapperFunction {
+  private buildMatch(
+    user: IUser,
+    tournament: ITournament
+  ): ChallongeMapperFunction {
     const usersMap = new Map<Number, IUser>();
     usersMap.set(user.challongeId, user);
     const findUser = async function(id: number): Promise<IUser> {
@@ -52,7 +56,8 @@ export class MatchesService {
         return foundUser;
       } else {
         const challongeUser = await this.userService.findOrCreateFromChallongeId(
-          id
+          id,
+          tournament.id
         );
         usersMap.set(id, challongeUser);
         return challongeUser;

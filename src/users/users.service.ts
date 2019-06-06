@@ -21,15 +21,15 @@ export class UsersService {
   }
 
   public async findOrCreateFromChallongeId(
-    challongeId: number
+    challongeId: number,
+    tournamentId?: number
   ): Promise<IUser> {
-    const latestTournament = await this.tournamentsService.getLatest();
+    const tournament = await this.tournamentsService.getByIdOrGetLatest(
+      tournamentId
+    );
     const [userEntity, challongeUser] = await Promise.all([
       this.userRepository.findOne({ challonge_id: challongeId }),
-      this.challongeService.findUserById(
-        challongeId,
-        latestTournament.challongeId
-      )
+      this.challongeService.findUserById(challongeId, tournament.challongeId)
     ]);
     if (userEntity) {
       return userEntity.toJSON();
@@ -44,12 +44,14 @@ export class UsersService {
   }
 
   public async create(userParams: ICreateUser): Promise<IUser> {
-    const latestTournament = await this.tournamentsService.getLatest();
+    const tournament = await this.tournamentsService.getByIdOrGetLatest(
+      userParams.tournamentId
+    );
     const [userEntity, challongeUser] = await Promise.all([
       this.findOrCreateUser(userParams),
       this.challongeService.findUser(
         userParams.challongeUsername,
-        latestTournament.challongeId
+        tournament.challongeId
       )
     ]);
     const avatarUrl = this.challongeService.avatarUrl(challongeUser);

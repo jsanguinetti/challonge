@@ -9,6 +9,7 @@ export interface IUser {
 export interface ICreateUser {
   externalId: string;
   challongeUsername: string;
+  tournamentId?: number;
 }
 
 export interface IDbUser {
