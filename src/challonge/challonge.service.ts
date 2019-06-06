@@ -1,7 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ChallongeApiService } from '../challongeApi/challongeApi.service';
-import { ITournamentParticipant, ITournament } from '../challongeApi/challongeApi.interface';
-import { IChallongeTournament, IChallongeUser, IChallongeMatch } from './challonge.interface';
+import {
+  ITournamentParticipant,
+  ITournament
+} from '../challongeApi/challongeApi.interface';
+import {
+  IChallongeTournament,
+  IChallongeUser,
+  IChallongeMatch
+} from './challonge.interface';
+
+import { SomethingNotFoundError } from '../errors';
 
 type FindByParams = {
   challongeId?: number;
@@ -10,13 +19,16 @@ type FindByParams = {
 };
 @Injectable()
 export class ChallongeService {
+  constructor(private readonly challongeApiService: ChallongeApiService) {}
 
-  constructor(
-    private readonly challongeApiService: ChallongeApiService
-  ) { }
-
-  public async getMatches(tournamentChallongeId: number, userChallongeId: number): Promise<IChallongeMatch[]> {
-    const matchesResponse = await this.challongeApiService.tournamentMatches({ tournamentId: tournamentChallongeId, participantId: userChallongeId });
+  public async getMatches(
+    tournamentChallongeId: number,
+    userChallongeId: number
+  ): Promise<IChallongeMatch[]> {
+    const matchesResponse = await this.challongeApiService.tournamentMatches({
+      tournamentId: tournamentChallongeId,
+      participantId: userChallongeId
+    });
     return matchesResponse.map(({ match }) => {
       return {
         ...match,
@@ -31,16 +43,26 @@ export class ChallongeService {
     });
   }
 
-  public async findUserById(challongeId: number, tournamentId: number): Promise<IChallongeUser> {
+  public async findUserById(
+    challongeId: number,
+    tournamentId: number
+  ): Promise<IChallongeUser> {
     return this.findBy({ challongeId, tournamentId });
   }
 
-  public async findUser(challongeUsername: string, tournamentId: number): Promise<IChallongeUser> {
+  public async findUser(
+    challongeUsername: string,
+    tournamentId: number
+  ): Promise<IChallongeUser> {
     return this.findBy({ challongeUsername, tournamentId });
   }
 
-  public async getTournament(challongeIdAlias: string): Promise<IChallongeTournament> {
-    const tournament = (await this.challongeApiService.tournament(challongeIdAlias)).tournament;
+  public async getTournament(
+    challongeIdAlias: string
+  ): Promise<IChallongeTournament> {
+    const tournament = (await this.challongeApiService.tournament(
+      challongeIdAlias
+    )).tournament;
     return {
       ...tournament,
       fullChallongeUrl: tournament.full_challonge_url,
@@ -57,16 +79,37 @@ export class ChallongeService {
   }
 
   private async findBy(findByParams: FindByParams): Promise<IChallongeUser> {
-    const participantsResponse = await this.challongeApiService.tournamentParticipants({ tournamentId: findByParams.tournamentId });
-    const participants: ITournamentParticipant[] = participantsResponse.map((p) => p.participant);
-    const finderFunction = findByParams.challongeId ?
-      (p: ITournamentParticipant) => findByParams.challongeId == p.id :
-      (p: ITournamentParticipant) => findByParams.challongeUsername == p.challonge_username;
+    const participantsResponse = await this.challongeApiService.tournamentParticipants(
+      { tournamentId: findByParams.tournamentId }
+    );
+    const participants: ITournamentParticipant[] = participantsResponse.map(
+      p => p.participant
+    );
+    const finderFunction = findByParams.challongeId
+      ? (p: ITournamentParticipant) => findByParams.challongeId == p.id
+      : (p: ITournamentParticipant) =>
+          findByParams.challongeUsername == p.challonge_username;
     const participant = participants.find(finderFunction);
+    if (!participant) {
+      if (findByParams.challongeId) {
+        throw new SomethingNotFoundError(
+          `User with challongeId: ${
+            findByParams.challongeId
+          } could not be found`
+        );
+      } else {
+        throw new SomethingNotFoundError(
+          `User with challongeUsername: ${
+            findByParams.challongeUsername
+          } could not be found`
+        );
+      }
+    }
     return {
       ...participant,
       challongeUsername: participant.challonge_username,
-      attachedParticipatablePortraitUrl: participant.attached_participatable_portrait_url,
+      attachedParticipatablePortraitUrl:
+        participant.attached_participatable_portrait_url
     };
   }
 }

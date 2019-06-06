@@ -9,27 +9,33 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './app.module';
 import { initDocumentation } from './documentation';
-import { QueryFailedErrorExceptionFilter } from './http-exception.filter';
+import {
+  QueryFailedErrorExceptionFilter,
+  SomethingNotFoundErrorExceptionFilter
+} from './http-exception.filter';
 import { ApiKeyGlobalGuard } from './api-key.guard';
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(ApplicationModule);
+  const app = await NestFactory.create<NestExpressApplication>(
+    ApplicationModule
+  );
 
-    app.use(logger(process.env.NODE_ENV));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(logger(process.env.NODE_ENV));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
 
-    app.useGlobalFilters(new QueryFailedErrorExceptionFilter());
-    app.useGlobalGuards(new ApiKeyGlobalGuard);
+  app.useGlobalFilters(new QueryFailedErrorExceptionFilter());
+  app.useGlobalFilters(new SomethingNotFoundErrorExceptionFilter());
+  app.useGlobalGuards(new ApiKeyGlobalGuard());
 
-    initDocumentation(app, {
-        version: '1.0.0',
-        description: 'Challonge api wrapper',
-        title: 'Challonge',
-        endpoint: '/docs'
-    });
+  initDocumentation(app, {
+    version: '1.0.0',
+    description: 'Challonge api wrapper',
+    title: 'Challonge',
+    endpoint: '/docs'
+  });
 
-    await app.listen(parseInt(process.env.PORT) || 3000);
+  await app.listen(parseInt(process.env.PORT) || 3000);
 }
 
 bootstrap();

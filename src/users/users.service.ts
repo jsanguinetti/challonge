@@ -8,79 +8,88 @@ import { TournamentsService } from '../tournaments/tournaments.service';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly challongeService: ChallongeService,
+    private readonly tournamentsService: TournamentsService
+  ) {}
 
-    constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-        private readonly challongeService: ChallongeService,
-        private readonly tournamentsService: TournamentsService,
-    ) { }
+  public async getUser(id: string): Promise<IUser> {
+    const users = await this.userRepository.find({ external_id: id });
+    return users[0] && users[0].toJSON();
+  }
 
-    public async getUser(id: string): Promise<IUser> {
-        const users = await this.userRepository.find({ external_id: id });
-        return users[0] && users[0].toJSON();
+  public async findOrCreateFromChallongeId(
+    challongeId: number
+  ): Promise<IUser> {
+    const latestTournament = await this.tournamentsService.getLatest();
+    const [userEntity, challongeUser] = await Promise.all([
+      this.userRepository.findOne({ challonge_id: challongeId }),
+      this.challongeService.findUserById(
+        challongeId,
+        latestTournament.challongeId
+      )
+    ]);
+    if (userEntity) {
+      return userEntity.toJSON();
+    } else {
+      const newUser = this.userRepository.create({
+        challonge_avatar_url: challongeUser.attachedParticipatablePortraitUrl,
+        challonge_id: challongeUser.id,
+        challonge_username: challongeUser.challongeUsername
+      });
+      return (await this.userRepository.save(newUser)).toJSON();
     }
+  }
 
-    public async findOrCreateFromChallongeId(challongeId: number): Promise<IUser> {
-        const latestTournament = await this.tournamentsService.getLatest();
-        const [userEntity, challongeUser] = await Promise.all([
-            this.userRepository.findOne({ challonge_id: challongeId }),
-            this.challongeService.findUserById(challongeId, latestTournament.challongeId)
-        ]);
-        if (userEntity) {
-            return userEntity.toJSON();
-        } else {
-            const newUser = this.userRepository.create({
-                challonge_avatar_url: challongeUser.attachedParticipatablePortraitUrl,
-                challonge_id: challongeUser.id,
-                challonge_username: challongeUser.challongeUsername
-            });
-            return (await this.userRepository.save(newUser)).toJSON();
-        }
+  public async create(userParams: ICreateUser): Promise<IUser> {
+    const latestTournament = await this.tournamentsService.getLatest();
+    const [userEntity, challongeUser] = await Promise.all([
+      this.findOrCreateUser(userParams),
+      this.challongeService.findUser(
+        userParams.challongeUsername,
+        latestTournament.challongeId
+      )
+    ]);
+    const avatarUrl = this.challongeService.avatarUrl(challongeUser);
+    const updatedUser = await this.updateUser(userEntity, {
+      external_id: userParams.externalId,
+      challonge_username: challongeUser.challongeUsername,
+      challonge_id: challongeUser.id,
+      challonge_avatar_url: `${avatarUrl}`
+    });
+    return updatedUser.toJSON();
+  }
+
+  private async findOrCreateUser(user: ICreateUser): Promise<User> {
+    let query = this.userRepository
+      .createQueryBuilder()
+      .where('challonge_username = :challongeUsername');
+    if (user.externalId) {
+      query = query.orWhere('external_id = :externalId');
     }
+    const existingUser = await query.setParameters({ ...user }).getOne();
 
-    public async create(userParams: ICreateUser): Promise<IUser> {
-        const latestTournament = await this.tournamentsService.getLatest();
-        const [userEntity, challongeUser] = await Promise.all([
-            this.findOrCreateUser(userParams),
-            this.challongeService.findUser(userParams.challongeUsername, latestTournament.challongeId)
-        ]);
-        const avatarUrl = this.challongeService.avatarUrl(challongeUser);
-        const updatedUser = await this.updateUser(userEntity, {
-            external_id: userParams.externalId,
-            external_username: userParams.externalUsername,
-            challonge_username: challongeUser.challongeUsername,
-            challonge_id: challongeUser.id,
-            challonge_avatar_url: `${avatarUrl}`
-        });
-        return updatedUser.toJSON();
+    if (existingUser) {
+      return existingUser;
+    } else {
+      return this.buildUserEntity(user);
     }
+  }
 
-    private async findOrCreateUser(user: ICreateUser): Promise<User> {
-        let query = this.userRepository.createQueryBuilder().where('challonge_username = :challongeUsername');
-        if (user.externalId) {
-            query = query
-                .orWhere('external_id = :externalId');
-        }
-        const existingUser = await query.setParameters({ ...user }).getOne();
+  private buildUserEntity(user: ICreateUser): User {
+    return this.userRepository.create({
+      external_id: user.externalId,
+      challonge_username: user.challongeUsername
+    });
+  }
 
-        if (existingUser) {
-            return existingUser;
-        } else {
-            return this.buildUserEntity(user);
-        }
-    }
-
-    private buildUserEntity(user: ICreateUser): User {
-        return this.userRepository.create({
-            external_id: user.externalId,
-            external_username: user.externalUsername,
-            challonge_username: user.challongeUsername
-        });
-    }
-
-    private async updateUser(user: User, attributes: Partial<User>): Promise<User> {
-        const userToBeUpdated = this.userRepository.merge(user, attributes);
-        return await this.userRepository.save(userToBeUpdated);
-    }
+  private async updateUser(
+    user: User,
+    attributes: Partial<User>
+  ): Promise<User> {
+    const userToBeUpdated = this.userRepository.merge(user, attributes);
+    return await this.userRepository.save(userToBeUpdated);
+  }
 }
