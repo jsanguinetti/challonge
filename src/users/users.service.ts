@@ -115,6 +115,7 @@ export class UsersService {
   ) {
     const avatarUrl = this.challongeService.avatarUrl(challongeUser);
     const participationAttrs = {
+      user_id: userEntity.id,
       challonge_id: challongeUser.id,
       tournament_id: tournament.id
     };
@@ -139,6 +140,9 @@ export class UsersService {
     const existingUser = await query.setParameters({ ...user }).getOne();
 
     if (existingUser) {
+      if (!existingUser.external_id && user.externalId) {
+        existingUser.external_id = user.externalId;
+      }
       return existingUser;
     } else {
       return this.buildUserEntity(user);
@@ -157,19 +161,8 @@ export class UsersService {
     attributes: Partial<User>,
     participation: Partial<Participation>
   ): Promise<User> {
-    const userToBeUpdated = this.userRepository.merge(user, attributes, {
-      participations: [participation]
-    });
+    await this.participationRepository.save(participation);
+    const userToBeUpdated = this.userRepository.merge(user, attributes);
     return await this.userRepository.save(userToBeUpdated);
   }
-
-  // private async findOrCreateParticipation(
-  //   participationAttrs: Partial<Participation>
-  //     participationAttrs
-  //   );
-  //       participationAttrs
-  //     );
-  //   }
-  //   return participation;
-  // }
 }
