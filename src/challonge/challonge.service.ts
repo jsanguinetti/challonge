@@ -29,7 +29,7 @@ export class ChallongeService {
       tournamentId: tournamentChallongeId,
       participantId: userChallongeId
     });
-    return matchesResponse.map(({ match }) => {
+    return matchesResponse.participant.matches.map(({ match }) => {
       return {
         ...match,
         state: match.state,
@@ -41,6 +41,14 @@ export class ChallongeService {
         suggestedPlayOrder: match.suggested_play_order
       };
     });
+  }
+
+  public async getTournamentParticipants(
+    challongeId: number
+  ): Promise<IChallongeUser[]> {
+    return (await this.tournamentParticipants(challongeId)).map(
+      this.buildChallongeUser
+    );
   }
 
   public async findUserById(
@@ -79,32 +87,52 @@ export class ChallongeService {
   }
 
   private async findBy(findByParams: FindByParams): Promise<IChallongeUser> {
-    const participantsResponse = await this.challongeApiService.tournamentParticipants(
-      { tournamentId: findByParams.tournamentId }
-    );
-    const participants: ITournamentParticipant[] = participantsResponse.map(
-      p => p.participant
-    );
-    const finderFunction = findByParams.challongeId
-      ? (p: ITournamentParticipant) => findByParams.challongeId == p.id
-      : (p: ITournamentParticipant) =>
-          findByParams.challongeUsername == p.challonge_username;
-    const participant = participants.find(finderFunction);
-    if (!participant) {
-      if (findByParams.challongeId) {
+    let participant: ITournamentParticipant = null;
+    if (findByParams.challongeId) {
+      participant = await this.getTournamentParticipant(
+        findByParams.challongeId,
+        findByParams.tournamentId
+      );
+      if (!participant)
         throw new SomethingNotFoundError(
           `User with challongeId: ${
             findByParams.challongeId
           } could not be found`
         );
-      } else {
+    } else {
+      const participants = await this.tournamentParticipants(
+        findByParams.tournamentId
+      );
+      participant = participants.find(
+        p => p.username === findByParams.challongeUsername
+      );
+      if (!participant)
         throw new SomethingNotFoundError(
           `User with challongeUsername: ${
             findByParams.challongeUsername
           } could not be found`
         );
-      }
     }
+
+    return this.buildChallongeUser(participant);
+  }
+  private async getTournamentParticipant(
+    participantId: number,
+    tournamentId: number | string
+  ): Promise<ITournamentParticipant> {
+    const participantsResponse = await this.challongeApiService.tournamentParticipant(
+      { participantId, tournamentId }
+    );
+    return participantsResponse.participant;
+  }
+
+  private async tournamentParticipants(tournamentId: number | string) {
+    const participantsResponse = await this.challongeApiService.tournamentParticipants(
+      { tournamentId }
+    );
+    return participantsResponse.map(p => p.participant);
+  }
+  private buildChallongeUser(participant: ITournamentParticipant) {
     return {
       ...participant,
       challongeUsername: participant.challonge_username,

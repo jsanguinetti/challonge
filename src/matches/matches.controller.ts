@@ -16,7 +16,7 @@ import {
 import { MatchesService } from './matches.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { Response, Request, NextFunction } from 'express';
-import { IUser } from '../users/user.interface';
+import { UserWithParticipations } from '../users/UserWithParticipations';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
@@ -29,7 +29,7 @@ export class MatchesController {
   @ApiImplicitQuery({ name: 'externalId' })
   @ApiImplicitQuery({ name: 'tournamentId', required: false })
   public async index(@Req() req: Request, @Res() res: Response) {
-    const user: IUser = res.locals.user;
+    const user: UserWithParticipations = res.locals.user;
     const tournamentId = parseInt(req.query.tournamentId);
     res.send(await this.matchesService.list({ user, tournamentId }));
   }

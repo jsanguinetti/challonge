@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
+import { Participation } from './participation.entity';
 
 @Entity('users')
 export class User {
@@ -14,18 +15,19 @@ export class User {
   public challonge_username: string;
 
   @Column()
-  @IsNotEmpty()
-  public challonge_id: number;
-
-  @Column()
   public challonge_avatar_url: string;
+
+  @OneToMany(type => Participation, participation => participation.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
+  participations: Participation[];
 
   public toJSON() {
     return {
       id: this.id,
       externalId: this.external_id,
       challongeUsername: this.challonge_username,
-      challongeId: this.challonge_id,
       challongeAvatarUrl: this.challonge_avatar_url
     };
   }

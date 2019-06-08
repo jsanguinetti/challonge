@@ -1,13 +1,14 @@
+import { Participation } from './entities/participation.entity';
+
 export interface IUser {
   readonly id: number;
   readonly externalId: string;
-  readonly challongeId: number;
   readonly challongeUsername: string;
   readonly challongeAvatarUrl: string;
 }
 
 export interface ICreateUser {
-  externalId: string;
+  externalId?: string;
   challongeUsername: string;
   tournamentId?: number;
 }

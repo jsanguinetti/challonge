@@ -2,6 +2,11 @@ export interface ITournamentParticipantsParameters {
   tournamentId: string | number;
 }
 
+export interface ITournamentParticipantParameters {
+  participantId: number;
+  tournamentId: string | number;
+}
+
 export interface ITournamentMatchesParameters {
   tournamentId: string | number;
   participantId: number;
@@ -47,6 +52,13 @@ export interface ITournament {
   full_challonge_url: string;
   game_name: string;
   name: string;
+}
+
+export interface IParticipantWithMatchesResponse {
+  participant: IParticipantWithMatches;
+}
+export interface IParticipantWithMatches extends ITournamentParticipant {
+  matches: IMatchResponse[];
 }
 
 export interface IMatchResponse {

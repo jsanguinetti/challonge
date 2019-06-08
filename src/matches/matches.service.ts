@@ -3,13 +3,16 @@ import { ChallongeService } from '../challonge/challonge.service';
 import { TournamentsService } from '../tournaments/tournaments.service';
 import { IMatch } from './match.interface';
 import { UsersService } from '../users/users.service';
-import { IUser } from '../users/user.interface';
-import { IChallongeMatch } from '../challonge/challonge.interface';
+import { UserWithParticipations } from '../users/UserWithParticipations';
+import {
+  IChallongeMatch,
+  IChallongeUser
+} from '../challonge/challonge.interface';
 import { ITournament } from '../tournaments/tournament.interface';
 
 interface ListMatchesParams {
   tournamentId?: number;
-  user: IUser;
+  user: UserWithParticipations;
 }
 type ChallongeMapperFunction = (
   challongeMatch: IChallongeMatch
@@ -24,63 +27,83 @@ export class MatchesService {
   ) {}
 
   public async list(listMatchesParams: ListMatchesParams): Promise<IMatch[]> {
-    const tournament = await this.getTournament(listMatchesParams.tournamentId);
+    const tournament = await this.tournamentService.getByIdOrGetLatest(
+      listMatchesParams.tournamentId
+    );
     const { user } = listMatchesParams;
+    const participation = await this.userService.findOrCreateParticipation(
+      user,
+      tournament
+    );
     const challongeMatches = await this.challongeService.getMatches(
       tournament.challongeId,
-      user.challongeId
+      participation.challonge_id
+    );
+    const challongeParticipants = await this.challongeService.getTournamentParticipants(
+      tournament.challongeId
     );
     const matches = await Promise.all(
-      challongeMatches.map(this.buildMatch(user, tournament))
+      challongeMatches
+        .filter(m => m.suggestedPlayOrder)
+        .map(
+          this.buildMatch(
+            user,
+            tournament,
+            participation.challonge_id,
+            challongeParticipants
+          )
+        )
     );
     return matches;
   }
 
-  private async getTournament(tournamentId?: number) {
-    if (tournamentId) {
-      return await this.tournamentService.getTournament(tournamentId);
-    } else {
-      return await this.tournamentService.getLatest();
-    }
-  }
-
   private buildMatch(
-    user: IUser,
-    tournament: ITournament
+    user: UserWithParticipations,
+    tournament: ITournament,
+    challongeId: number,
+    challongeParticipants: IChallongeUser[]
   ): ChallongeMapperFunction {
-    const usersMap = new Map<Number, IUser>();
-    usersMap.set(user.challongeId, user);
-    const findUser = async function(id: number): Promise<IUser> {
-      const foundUser = usersMap.get(id);
+    const usersMap = new Map<Number, UserWithParticipations>();
+    usersMap.set(challongeId, user);
+    const findUser = async function(
+      challongeId: number
+    ): Promise<UserWithParticipations> {
+      const foundUser = usersMap.get(challongeId);
       if (foundUser) {
         return foundUser;
       } else {
-        const challongeUser = await this.userService.findOrCreateFromChallongeId(
-          id,
-          tournament.id
+        const userWithParticipations: UserWithParticipations = await this.userService.findOrCreateFromChallongeId(
+          challongeId,
+          tournament,
+          challongeParticipants
         );
-        usersMap.set(id, challongeUser);
-        return challongeUser;
+        usersMap.set(challongeId, userWithParticipations);
+        return userWithParticipations;
       }
     }.bind(this);
     const mapperFunction = async function(challongeMatch: IChallongeMatch) {
-      let player1: IUser = null;
-      let player2: IUser = null;
-      let adversary: IUser = null;
-      let winner: IUser = null;
-      let loser: IUser = null;
+      let player1: UserWithParticipations = null;
+      let player2: UserWithParticipations = null;
+      let adversary: UserWithParticipations = null;
+      let winner: UserWithParticipations = null;
+      let loser: UserWithParticipations = null;
 
-      if (challongeMatch.player1Id == user.challongeId) player1 = user;
+      if (challongeMatch.player1Id == challongeId) player1 = user;
       else player1 = await findUser(challongeMatch.player1Id);
 
-      if (challongeMatch.player2Id == user.challongeId) player2 = user;
+      if (challongeMatch.player2Id == challongeId) player2 = user;
       else player2 = await findUser(challongeMatch.player2Id);
 
       adversary = player1.id == user.id ? player2 : player1;
-      if (challongeMatch.winnerId == player1.challongeId) winner = player1;
-      if (challongeMatch.winnerId == player2.challongeId) winner = player2;
-      if (challongeMatch.loserId == player1.challongeId) loser = player1;
-      if (challongeMatch.loserId == player2.challongeId) loser = player2;
+
+      if (challongeMatch.winnerId == player1.challongeId(tournament.id))
+        winner = player1;
+      if (challongeMatch.winnerId == player2.challongeId(tournament.id))
+        winner = player2;
+      if (challongeMatch.loserId == player1.challongeId(tournament.id))
+        loser = player1;
+      if (challongeMatch.loserId == player2.challongeId(tournament.id))
+        loser = player2;
 
       const match: IMatch = {
         player1,

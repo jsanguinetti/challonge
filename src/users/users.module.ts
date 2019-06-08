@@ -6,15 +6,17 @@ import { ChallongeModule } from '../challonge/challonge.module';
 import { Tournament } from '../tournaments/entities/tournament.entity';
 import { TournamentsModule } from '../tournaments/tournaments.module';
 import { TournamentsService } from '../tournaments/tournaments.service';
+import { Participation } from './entities/participation.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([User]),
-        TournamentsModule,
-        ChallongeModule,
-    ],
-    providers: [UsersService, TournamentsService],
-    controllers: [],
-    exports: [UsersService]
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Participation]),
+    TournamentsModule,
+    ChallongeModule
+  ],
+  providers: [UsersService, TournamentsService],
+  controllers: [],
+  exports: [UsersService]
 })
-export class UsersModule { }
+export class UsersModule {}

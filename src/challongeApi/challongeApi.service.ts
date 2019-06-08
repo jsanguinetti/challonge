@@ -4,28 +4,54 @@ import axios from 'axios';
 
 @Injectable()
 export class ChallongeApiService {
-
-  public async tournamentMatches(parameters: API.ITournamentMatchesParameters): Promise<API.IMatchResponse[]> {
-    const result = await axios.get(
+  public async tournamentMatches(
+    parameters: API.ITournamentMatchesParameters
+  ): Promise<API.IParticipantWithMatchesResponse> {
+    const url =
       this.baseRequestUrl() +
       this.tournamentsRequestPath(parameters.tournamentId) +
-      '/matches.json' +
-      '?participant_id=' +
-      parameters.participantId
+      '/participants/' +
+      parameters.participantId +
+      '.json?include_matches=1';
+    const result = await axios.get(url);
+    return result.data;
+  }
+  public async tournamentParticipants(
+    parameters: API.ITournamentParticipantsParameters
+  ): Promise<API.ITournamentParticipantResponse[]> {
+    const result = await axios.get(
+      this.baseRequestUrl() +
+        this.tournamentsRequestPath(parameters.tournamentId) +
+        '/participants.json'
     );
     return result.data;
   }
-  public async tournamentParticipants(parameters: API.ITournamentParticipantsParameters): Promise<API.ITournamentParticipantResponse[]> {
-    const result = await axios.get(this.baseRequestUrl() + this.tournamentsRequestPath(parameters.tournamentId) + '/participants.json');
+
+  public async tournamentParticipant(
+    parameters: API.ITournamentParticipantParameters
+  ): Promise<API.ITournamentParticipantResponse> {
+    const url =
+      this.baseRequestUrl() +
+      this.tournamentsRequestPath(parameters.tournamentId) +
+      '/participants/' +
+      parameters.participantId +
+      '.json';
+    const result = await axios.get(url);
     return result.data;
   }
 
-  public async tournament(tournamentIdAlias: string): Promise<API.ITournamentResponse> {
-    const result = await axios.get(this.baseRequestUrl() + this.tournamentsRequestPath(tournamentIdAlias) + '.json');
+  public async tournament(
+    tournamentIdAlias: string
+  ): Promise<API.ITournamentResponse> {
+    const result = await axios.get(
+      this.baseRequestUrl() +
+        this.tournamentsRequestPath(tournamentIdAlias) +
+        '.json'
+    );
     return result.data;
   }
 
-  private tournamentsRequestPath(tournamentId: (string | number)) {
+  private tournamentsRequestPath(tournamentId: string | number) {
     return `tournaments/${tournamentId}`;
   }
 
