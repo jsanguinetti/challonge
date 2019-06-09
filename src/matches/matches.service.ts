@@ -50,7 +50,8 @@ export class MatchesService {
             user,
             tournament,
             participation.challonge_id,
-            challongeParticipants
+            challongeParticipants,
+            this.userService
           )
         )
     );
@@ -61,7 +62,8 @@ export class MatchesService {
     user: UserWithParticipations,
     tournament: ITournament,
     challongeId: number,
-    challongeParticipants: IChallongeUser[]
+    challongeParticipants: IChallongeUser[],
+    userService: UsersService
   ): ChallongeMapperFunction {
     const usersMap = new Map<Number, UserWithParticipations>();
     usersMap.set(challongeId, user);
@@ -72,7 +74,7 @@ export class MatchesService {
       if (foundUser) {
         return foundUser;
       } else {
-        const userWithParticipations: UserWithParticipations = await this.userService.findOrCreateFromChallongeId(
+        const userWithParticipations: UserWithParticipations = await userService.findOrCreateFromChallongeId(
           challongeId,
           tournament,
           challongeParticipants
@@ -80,7 +82,7 @@ export class MatchesService {
         usersMap.set(challongeId, userWithParticipations);
         return userWithParticipations;
       }
-    }.bind(this);
+    };
     const mapperFunction = async function(challongeMatch: IChallongeMatch) {
       let player1: UserWithParticipations = null;
       let player2: UserWithParticipations = null;

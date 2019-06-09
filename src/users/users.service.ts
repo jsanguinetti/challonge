@@ -145,7 +145,7 @@ export class UsersService {
       }
       return existingUser;
     } else {
-      return this.buildUserEntity(user);
+      return await this.userRepository.save(this.buildUserEntity(user));
     }
   }
 
@@ -161,8 +161,13 @@ export class UsersService {
     attributes: Partial<User>,
     participation: Partial<Participation>
   ): Promise<User> {
-    await this.participationRepository.save(participation);
-    const userToBeUpdated = this.userRepository.merge(user, attributes);
-    return await this.userRepository.save(userToBeUpdated);
+    const savedParticipation = await this.participationRepository.save(
+      participation
+    );
+    const savedUser = await this.userRepository.save(
+      this.userRepository.merge(user, attributes)
+    );
+    savedUser.participations = [savedParticipation];
+    return savedUser;
   }
 }
