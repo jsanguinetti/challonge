@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ChallongeService } from '../challonge/challonge.service';
 import { TournamentsService } from '../tournaments/tournaments.service';
-import { IMatch } from './match.interface';
+import { IMatch, IMatchesResponse } from './match.interface';
 import { UsersService } from '../users/users.service';
 import { UserWithParticipations } from '../users/UserWithParticipations';
 import {
@@ -26,7 +26,9 @@ export class MatchesService {
     private readonly userService: UsersService
   ) {}
 
-  public async list(listMatchesParams: ListMatchesParams): Promise<IMatch[]> {
+  public async list(
+    listMatchesParams: ListMatchesParams
+  ): Promise<IMatchesResponse> {
     const tournament = await this.tournamentService.getByIdOrGetLatest(
       listMatchesParams.tournamentId
     );
@@ -55,7 +57,10 @@ export class MatchesService {
           )
         )
     );
-    return matches;
+    return {
+      tournament,
+      matches
+    };
   }
 
   private buildMatch(
