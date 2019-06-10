@@ -106,7 +106,7 @@ export class MatchesService {
       }
 
       if (player1) {
-        if (player1.id == user.id) adversary = player1;
+        if (player1.id == user.id && player2) adversary = player2;
 
         if (challongeMatch.winnerId == player1.challongeId(tournament.id))
           winner = player1;
@@ -115,7 +115,7 @@ export class MatchesService {
       }
 
       if (player2) {
-        if (player2.id == user.id) adversary = player2;
+        if (player2.id == user.id && player1) adversary = player1;
 
         if (challongeMatch.winnerId == player2.challongeId(tournament.id))
           winner = player2;
