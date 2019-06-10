@@ -20,6 +20,7 @@ import {
   SomethingNotFoundErrorExceptionFilter
 } from './http-exception.filter';
 import { ApiKeyGlobalGuard } from './api-key.guard';
+import { AllExceptionsFilter } from './all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -30,6 +31,7 @@ async function bootstrap() {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalFilters(new QueryFailedErrorExceptionFilter());
   app.useGlobalFilters(new SomethingNotFoundErrorExceptionFilter());
   app.useGlobalGuards(new ApiKeyGlobalGuard());

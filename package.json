@@ -16,6 +16,7 @@
       "lint": "yarn tslint -t codeFrame 'src/**/*.ts'"
    },
    "dependencies": {
+      "@bugsnag/js": "^6.3.0",
       "@nestjs/common": "^6.0.0",
       "@nestjs/core": "^6.0.0",
       "@nestjs/microservices": "^6.0.0",
