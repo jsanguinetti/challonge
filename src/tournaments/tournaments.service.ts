@@ -11,7 +11,13 @@ import { ChallongeService } from '../challonge/challonge.service';
 import { User } from '../users/entities/user.entity';
 import { Participation } from '../users/entities/participation.entity';
 import { UsersService } from '../users/users.service';
+import { UserWithParticipations } from '../users/UserWithParticipations';
 
+interface GetByIdOrGetLatestParams {
+  challongeUsername?: string;
+  tournamentId?: number;
+  user?: UserWithParticipations;
+}
 @Injectable()
 export class TournamentsService {
   constructor(
@@ -60,23 +66,58 @@ export class TournamentsService {
     return !!deleteResult.affected;
   }
 
-  public async getByIdOrGetLatest(id?: number): Promise<ITournament> {
-    if (id) {
-      return await this.getTournament(id);
-    } else {
-      return await this.getLatest();
+  public async getByIdOrGetLatest(
+    params: GetByIdOrGetLatestParams
+  ): Promise<ITournament> {
+    if (params.user) {
+      return await this.getLatestForUser(params.user, params.tournamentId);
     }
+    if (params.challongeUsername) {
+      return await this.getLatestForUsername(
+        params.challongeUsername,
+        params.tournamentId
+      );
+    }
+    return await this.getLatest();
   }
 
   public async getTournament(id: number): Promise<ITournament> {
     return (await this.find(id)).toJSON();
   }
 
-  public async getLatest(): Promise<ITournament> {
+  private async getLatest(): Promise<ITournament> {
     const tournament = await this.tournamentRepository.findOneOrFail(null, {
       order: { id: 'DESC' }
     });
     return tournament.toJSON();
+  }
+
+  private async getLatestForUser(
+    user: UserWithParticipations,
+    tournamentId?: number
+  ): Promise<ITournament> {
+    const lastTorunament = user.getLatestTournamentId();
+    if (tournamentId && user.isParticipant(tournamentId)) {
+      return await this.getTournament(tournamentId);
+    } else if (lastTorunament) {
+      return await this.getTournament(lastTorunament);
+    } else {
+      return await this.getLatest();
+    }
+  }
+
+  private async getLatestForUsername(
+    challongeUsername: string,
+    tournamentId?: number
+  ): Promise<ITournament> {
+    const user = await this.usersService.getUserByChallongeUsername(
+      challongeUsername
+    );
+    if (user) {
+      return await this.getLatestForUser(user, tournamentId);
+    } else {
+      return await this.getLatest();
+    }
   }
 
   private async find(id: number): Promise<Tournament> {

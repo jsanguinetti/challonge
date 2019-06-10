@@ -22,4 +22,15 @@ export class UserWithParticipations implements IUser {
     );
     return participation && participation.challonge_id;
   }
+
+  isParticipant(tournamentId: number) {
+    return this.participations.some(p => p.tournament_id === tournamentId);
+  }
+
+  getLatestTournamentId() {
+    const participation = this.participations.sort(
+      (p1, p2) => p2.tournament_id - p1.tournament_id
+    )[0];
+    return participation && participation.tournament_id;
+  }
 }

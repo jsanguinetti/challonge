@@ -98,7 +98,7 @@ export class ChallongeService {
         throw new SomethingNotFoundError(
           `User with challongeId: ${
             findByParams.challongeId
-          } could not be found`
+          } could not be found in tournament: ${findByParams.tournamentId}`
         );
     } else {
       const participants = await this.tournamentParticipants(
@@ -111,7 +111,7 @@ export class ChallongeService {
         throw new SomethingNotFoundError(
           `User with challongeUsername: ${
             findByParams.challongeUsername
-          } could not be found`
+          } could not be found in tournament: ${findByParams.tournamentId}`
         );
     }
 

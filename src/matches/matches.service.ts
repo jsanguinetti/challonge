@@ -29,10 +29,11 @@ export class MatchesService {
   public async list(
     listMatchesParams: ListMatchesParams
   ): Promise<IMatchesResponse> {
-    const tournament = await this.tournamentService.getByIdOrGetLatest(
-      listMatchesParams.tournamentId
-    );
     const { user } = listMatchesParams;
+    const tournament = await this.tournamentService.getByIdOrGetLatest({
+      user,
+      tournamentId: listMatchesParams.tournamentId
+    });
     const participation = await this.userService.findOrCreateParticipation(
       user,
       tournament
@@ -44,7 +45,7 @@ export class MatchesService {
     const challongeParticipants = await this.challongeService.getTournamentParticipants(
       tournament.challongeId
     );
-    const matches = await Promise.all(
+    const matches = (await Promise.all(
       challongeMatches
         .filter(m => m.suggestedPlayOrder)
         .map(
@@ -56,7 +57,7 @@ export class MatchesService {
             this.userService
           )
         )
-    );
+    )).sort((matchA, matchB) => matchA.matchNumber - matchB.matchNumber);
     return {
       tournament,
       matches
@@ -95,22 +96,32 @@ export class MatchesService {
       let winner: UserWithParticipations = null;
       let loser: UserWithParticipations = null;
 
-      if (challongeMatch.player1Id == challongeId) player1 = user;
-      else player1 = await findUser(challongeMatch.player1Id);
+      if (challongeMatch.player1Id) {
+        if (challongeMatch.player1Id == challongeId) player1 = user;
+        else player1 = await findUser(challongeMatch.player1Id);
+      }
+      if (challongeMatch.player2Id) {
+        if (challongeMatch.player2Id == challongeId) player2 = user;
+        else player2 = await findUser(challongeMatch.player2Id);
+      }
 
-      if (challongeMatch.player2Id == challongeId) player2 = user;
-      else player2 = await findUser(challongeMatch.player2Id);
+      if (player1) {
+        if (player1.id == user.id) adversary = player1;
 
-      adversary = player1.id == user.id ? player2 : player1;
+        if (challongeMatch.winnerId == player1.challongeId(tournament.id))
+          winner = player1;
+        if (challongeMatch.loserId == player1.challongeId(tournament.id))
+          loser = player1;
+      }
 
-      if (challongeMatch.winnerId == player1.challongeId(tournament.id))
-        winner = player1;
-      if (challongeMatch.winnerId == player2.challongeId(tournament.id))
-        winner = player2;
-      if (challongeMatch.loserId == player1.challongeId(tournament.id))
-        loser = player1;
-      if (challongeMatch.loserId == player2.challongeId(tournament.id))
-        loser = player2;
+      if (player2) {
+        if (player2.id == user.id) adversary = player2;
+
+        if (challongeMatch.winnerId == player2.challongeId(tournament.id))
+          winner = player2;
+        if (challongeMatch.loserId == player2.challongeId(tournament.id))
+          loser = player2;
+      }
 
       const match: IMatch = {
         player1,
