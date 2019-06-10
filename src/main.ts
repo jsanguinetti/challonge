@@ -1,3 +1,9 @@
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.NEW_RELIC_LICENSE_KEY
+) {
+  require('newrelic');
+}
 import * as env from 'dotenv';
 import 'reflect-metadata';
 import * as logger from 'morgan';
