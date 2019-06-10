@@ -11,6 +11,7 @@ import {
 } from './challonge.interface';
 
 import { SomethingNotFoundError } from '../errors';
+import { partition } from 'rxjs';
 
 type FindByParams = {
   challongeId?: number;
@@ -46,9 +47,9 @@ export class ChallongeService {
   public async getTournamentParticipants(
     challongeId: number
   ): Promise<IChallongeUser[]> {
-    return (await this.tournamentParticipants(challongeId)).map(
-      this.buildChallongeUser
-    );
+    return (await this.tournamentParticipants(challongeId))
+      .filter(partitcipant => partitcipant.challonge_username)
+      .map(this.buildChallongeUser);
   }
 
   public async findUserById(

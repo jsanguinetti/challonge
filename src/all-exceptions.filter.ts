@@ -25,6 +25,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.reportToBugsnag(exception, request, response);
     }
 
+    console.error(exception);
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

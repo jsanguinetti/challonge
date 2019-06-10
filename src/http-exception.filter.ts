@@ -29,7 +29,6 @@ export class SomethingNotFoundErrorExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = 404;
 
-    console.error(exception);
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

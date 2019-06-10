@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import { Tournament } from './entities/tournament.entity';
@@ -8,12 +8,21 @@ import {
   IUpdateTournament
 } from './tournament.interface';
 import { ChallongeService } from '../challonge/challonge.service';
+import { User } from '../users/entities/user.entity';
+import { Participation } from '../users/entities/participation.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TournamentsService {
   constructor(
     @InjectRepository(Tournament)
     private readonly tournamentRepository: Repository<Tournament>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Participation)
+    private readonly participationRepository: Repository<Participation>,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
     private readonly challongeService: ChallongeService
   ) {}
 
@@ -26,6 +35,7 @@ export class TournamentsService {
   ): Promise<ITournament> {
     const tournament = await this.createTournament(tournamentParams);
     const createdTournament = await this.tournamentRepository.save(tournament);
+    await this.createParticipationsFor(createdTournament);
     return createdTournament.toJSON();
   }
   public async update(
@@ -39,6 +49,7 @@ export class TournamentsService {
     const updatedTournament = await this.tournamentRepository.save(
       tournamentToUpdate
     );
+    await this.createParticipationsFor(updatedTournament);
     return updatedTournament.toJSON();
   }
 
@@ -94,5 +105,21 @@ export class TournamentsService {
       full_challonge_url: challongeTournament.fullChallongeUrl,
       game_name: challongeTournament.gameName
     });
+  }
+
+  private async createParticipationsFor(tournament: Tournament) {
+    const participants = await this.challongeService.getTournamentParticipants(
+      tournament.challonge_id
+    );
+    await Promise.all(
+      participants.map(
+        async p =>
+          await this.usersService.findOrCreateFromChallongeId(
+            p.id,
+            tournament.toJSON(),
+            participants
+          )
+      )
+    );
   }
 }

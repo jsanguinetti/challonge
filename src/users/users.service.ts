@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -18,6 +18,7 @@ export class UsersService {
     @InjectRepository(Participation)
     private readonly participationRepository: Repository<Participation>,
     private readonly challongeService: ChallongeService,
+    @Inject(forwardRef(() => TournamentsService))
     private readonly tournamentsService: TournamentsService
   ) {}
 
