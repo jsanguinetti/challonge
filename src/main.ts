@@ -6,7 +6,6 @@ if (
 }
 import * as env from 'dotenv';
 import 'reflect-metadata';
-import * as logger from 'morgan';
 env.config();
 
 import * as bodyParser from 'body-parser';
@@ -27,7 +26,6 @@ async function bootstrap() {
     ApplicationModule
   );
 
-  app.use(logger(process.env.NODE_ENV));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 

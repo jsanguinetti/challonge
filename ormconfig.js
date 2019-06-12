@@ -2,9 +2,9 @@ const env = require("dotenv");
 env.config();
 
 const isProd = process.env.NODE_ENV === "production";
-const entitiesExtension = isProd ? "js" : "ts";
-const entitiesDir = isProd ? "dist" : "src";
-const migrationsDir = isProd ? "dist/migration/*.js" : "src/migration/*.ts";
+const entitiesExtension = "ts";
+const entitiesDir = "src";
+const migrationsDir = "src/migration/*.ts";
 
 module.exports = {
   type: "postgres",

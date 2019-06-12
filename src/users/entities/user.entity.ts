@@ -7,10 +7,10 @@ export class User {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({ unique: true })
   public external_id: string;
 
-  @Column()
+  @Column({ unique: true })
   @IsNotEmpty()
   public challonge_username: string;
 
