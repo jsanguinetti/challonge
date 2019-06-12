@@ -10,6 +10,11 @@ import { ITournament } from '../tournaments/tournament.interface';
 import { UserWithParticipations } from './UserWithParticipations';
 import { IChallongeUser } from '../challonge/challonge.interface';
 
+interface FindOrCreateFromChallongeIdParams {
+  challongeId: number;
+  tournament: ITournament;
+  challongeParticipants: IChallongeUser[];
+}
 @Injectable()
 export class UsersService {
   constructor(
@@ -76,10 +81,9 @@ export class UsersService {
   }
 
   public async findOrCreateFromChallongeId(
-    challongeId: number,
-    tournament: ITournament,
-    challongeParticipants: IChallongeUser[]
+    params: FindOrCreateFromChallongeIdParams
   ): Promise<UserWithParticipations> {
+    const { challongeId, tournament, challongeParticipants } = params;
     const participation = await this.participationRepository.findOne(
       { challonge_id: challongeId, tournament_id: tournament.id },
       { relations: ['user'] }
@@ -93,7 +97,7 @@ export class UsersService {
       );
       let existingUser = await this.findOrCreateUser(challongeUser);
 
-      const newUser = await this.createFromUserEntityAndChallongeUser(
+      const newUser = await this.updateAndCreateParticipation(
         existingUser,
         challongeUser,
         tournament
@@ -118,7 +122,7 @@ export class UsersService {
         tournament.challongeId
       )
     ]);
-    const newUser = await this.createFromUserEntityAndChallongeUser(
+    const newUser = await this.updateAndCreateParticipation(
       userEntity,
       challongeUser,
       tournament
@@ -126,44 +130,51 @@ export class UsersService {
     return newUser.toJSON();
   }
 
-  private async createFromUserEntityAndChallongeUser(
+  private async updateAndCreateParticipation(
     userEntity: User,
     challongeUser: IChallongeUser,
     tournament: ITournament
   ) {
-    const avatarUrl = this.challongeService.avatarUrl(challongeUser);
-    const participationAttrs = {
+    const savedParticipation = await this.participationRepository.save({
       user_id: userEntity.id,
       challonge_id: challongeUser.id,
       tournament_id: tournament.id
-    };
-    return await this.updateUser(
-      userEntity,
-      {
+    });
+    const savedUser = await this.userRepository.save(
+      this.userRepository.merge(userEntity, {
         external_id: userEntity.external_id,
         challonge_username: challongeUser.challongeUsername,
-        challonge_avatar_url: `${avatarUrl}`
-      },
-      participationAttrs
+        challonge_avatar_url: `${this.challongeService.avatarUrl(
+          challongeUser
+        )}`
+      })
     );
+    savedUser.participations = savedUser.participations || [];
+    savedUser.participations.push(savedParticipation);
+
+    return savedUser;
   }
 
-  private async findOrCreateUser(user: ICreateUser): Promise<User> {
+  private async findOrCreateUser(createUserParams: ICreateUser): Promise<User> {
     let query = this.userRepository
       .createQueryBuilder()
       .where('challonge_username = :challongeUsername');
-    if (user.externalId) {
+    if (createUserParams.externalId) {
       query = query.orWhere('external_id = :externalId');
     }
-    const existingUser = await query.setParameters({ ...user }).getOne();
+    const existingUser = await query
+      .setParameters({ ...createUserParams })
+      .getOne();
 
     if (existingUser) {
-      if (!existingUser.external_id && user.externalId) {
-        existingUser.external_id = user.externalId;
+      if (!existingUser.external_id && createUserParams.externalId) {
+        existingUser.external_id = createUserParams.externalId;
       }
-      return existingUser;
+      return await this.userRepository.save(existingUser);
     } else {
-      return await this.userRepository.save(this.buildUserEntity(user));
+      return await this.userRepository.save(
+        this.buildUserEntity(createUserParams)
+      );
     }
   }
 
@@ -172,20 +183,5 @@ export class UsersService {
       external_id: user.externalId,
       challonge_username: user.challongeUsername
     });
-  }
-
-  private async updateUser(
-    user: User,
-    attributes: Partial<User>,
-    participation: Partial<Participation>
-  ): Promise<User> {
-    const savedParticipation = await this.participationRepository.save(
-      participation
-    );
-    const savedUser = await this.userRepository.save(
-      this.userRepository.merge(user, attributes)
-    );
-    savedUser.participations = [savedParticipation];
-    return savedUser;
   }
 }

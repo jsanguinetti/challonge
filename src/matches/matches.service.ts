@@ -81,9 +81,11 @@ export class MatchesService {
         return foundUser;
       } else {
         const userWithParticipations: UserWithParticipations = await userService.findOrCreateFromChallongeId(
-          challongeId,
-          tournament,
-          challongeParticipants
+          {
+            challongeId,
+            tournament,
+            challongeParticipants
+          }
         );
         usersMap.set(challongeId, userWithParticipations);
         return userWithParticipations;

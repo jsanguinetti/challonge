@@ -149,17 +149,17 @@ export class TournamentsService {
   }
 
   private async createParticipationsFor(tournament: Tournament) {
-    const participants = await this.challongeService.getTournamentParticipants(
+    const challongeParticipants = await this.challongeService.getTournamentParticipants(
       tournament.challonge_id
     );
     await Promise.all(
-      participants.map(
+      challongeParticipants.map(
         async p =>
-          await this.usersService.findOrCreateFromChallongeId(
-            p.id,
-            tournament.toJSON(),
-            participants
-          )
+          await this.usersService.findOrCreateFromChallongeId({
+            challongeId: p.id,
+            tournament: tournament.toJSON(),
+            challongeParticipants
+          })
       )
     );
   }
