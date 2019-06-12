@@ -33,7 +33,11 @@ export class TournamentsService {
   ) {}
 
   public async list(): Promise<ITournament[]> {
-    return (await this.tournamentRepository.find()).map(t => t.toJSON());
+    return (await this.tournamentRepository.find({
+      order: {
+        id: 'ASC'
+      }
+    })).map(t => t.toJSON());
   }
 
   public async create(
