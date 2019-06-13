@@ -1,9 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToOne
+} from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
+import { RankingWeek } from '../../ranking/entities/rankingWeek.entity';
 
 @Entity('tournaments')
 export class Tournament {
-
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -27,11 +35,19 @@ export class Tournament {
   @IsNotEmpty()
   public game_name: string;
 
+  @Column()
+  @IsNotEmpty()
+  ranking_week_id: number;
+
   @CreateDateColumn({ type: 'timestamp', name: 'create_date' })
   public createDate: string;
 
   @UpdateDateColumn({ type: 'timestamp', name: 'update_date' })
   public updateDate: string;
+
+  @ManyToOne(type => RankingWeek, { persistence: false })
+  @JoinColumn({ name: 'ranking_week_id' })
+  ranking_week: RankingWeek;
 
   public toJSON() {
     return {

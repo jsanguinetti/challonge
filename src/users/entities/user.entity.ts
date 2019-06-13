@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
 import { Participation } from './participation.entity';
+import { RankingEntry } from '../../ranking/entities/rankingEntry.entity';
 
 @Entity('users')
 export class User {
@@ -22,6 +23,11 @@ export class User {
     onDelete: 'CASCADE'
   })
   participations: Participation[];
+
+  @OneToMany(type => RankingEntry, rankingEntry => rankingEntry.user, {
+    persistence: false
+  })
+  ranking_entries: RankingEntry[];
 
   public toJSON() {
     return {
