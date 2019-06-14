@@ -6,18 +6,19 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { MatchesModule } from './matches/matches.module';
+import { RankingModule } from './ranking/ranking.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forRoot(),
-        UsersModule,
-        AuthModule,
-        TournamentsModule,
-        MatchesModule
-    ],
-    controllers: [AppController]
+  imports: [
+    TypeOrmModule.forRoot(),
+    UsersModule,
+    AuthModule,
+    TournamentsModule,
+    MatchesModule,
+    RankingModule
+  ],
+  controllers: [AppController]
 })
-
 export class ApplicationModule {
-    constructor(private readonly connection: Connection) { }
+  constructor(private readonly connection: Connection) {}
 }

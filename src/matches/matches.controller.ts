@@ -1,21 +1,8 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-  Res,
-  Next,
-  Req
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiUseTags,
-  ApiImplicitParam,
-  ApiImplicitQuery
-} from '@nestjs/swagger';
+import { Controller, Get, UseGuards, Res, Req } from '@nestjs/common';
+import { ApiBearerAuth, ApiUseTags, ApiImplicitQuery } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { Response, Request, NextFunction } from 'express';
+import { Response, Request } from 'express';
 import { UserWithParticipations } from '../users/UserWithParticipations';
 
 @ApiBearerAuth()
