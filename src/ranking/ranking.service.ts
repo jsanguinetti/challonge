@@ -22,6 +22,17 @@ export class RankingService {
     return currentRanking && currentRanking.toJSON();
   }
 
+  public async userRankingHistory(
+    user: UserWithParticipations
+  ): Promise<IRankingEntry[]> {
+    const currentRanking = await this.rankingEntriesRepository.find({
+      where: { user_id: user.id },
+      order: { ranking_week_id: 'DESC' },
+      relations: ['user']
+    });
+    return currentRanking.map(entry => entry.toJSON());
+  }
+
   public async currentRanking(): Promise<IRankingEntry[]> {
     const currentRankingWeek = await this.rankingEntriesRepository.findOne({
       order: { ranking_week_id: 'DESC' }

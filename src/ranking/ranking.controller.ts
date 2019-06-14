@@ -19,6 +19,14 @@ export class RankingController {
     res.send(await this.rankingService.userCurrentRanking(user));
   }
 
+  @Get('/history/me')
+  @UseGuards(AuthGuard)
+  @ApiImplicitQuery({ name: 'externalId' })
+  public async historyForMe(@Res() res: Response) {
+    const user: UserWithParticipations = res.locals.user;
+    res.send(await this.rankingService.userRankingHistory(user));
+  }
+
   @Get('/current')
   public async current() {
     return await this.rankingService.currentRanking();
