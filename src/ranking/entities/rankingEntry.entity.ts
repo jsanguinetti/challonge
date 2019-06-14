@@ -56,6 +56,8 @@ export class RankingEntry {
   public toJSON(): IRankingEntry {
     return {
       ...this,
+      user: this.user && this.user.toJSON(),
+      rankingWeekNumber: this.ranking_week_id,
       wonVsLostMatches: this.won_vs_lost_matches,
       wonVsLostSets: this.won_vs_lost_sets,
       rankDelta: this.rank_delta
