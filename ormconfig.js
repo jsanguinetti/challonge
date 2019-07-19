@@ -1,7 +1,6 @@
 const env = require("dotenv");
 env.config();
 
-const isProd = process.env.NODE_ENV === "production";
 const entitiesExtension = "ts";
 const entitiesDir = "src";
 const migrationsDir = "src/migration/*.ts";
