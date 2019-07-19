@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "start:watch": "nodemon",
-    "start:dev": "foreman start -f Procfile.dev",
+    "start:dev": "nf start -f Procfile.dev",
     "migration:generate": "yarn ts-node ./node_modules/typeorm/cli.js migration:generate",
     "migration:run": "yarn ts-node ./node_modules/typeorm/cli.js migration:run",
     "migration:revert": "yarn ts-node ./node_modules/typeorm/cli.js migration:revert",
@@ -35,6 +35,7 @@
     "typescript": "~3.5.0"
   },
   "devDependencies": {
+    "foreman": "^3.0.1",
     "nodemon": "^1.19.0",
     "tslint": "^5.17.0"
   },
