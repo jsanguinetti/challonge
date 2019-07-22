@@ -10,6 +10,7 @@ module.exports = {
   entities: [`${__dirname}/${entitiesDir}/**/*.entity.${entitiesExtension}`],
   url: process.env.DATABASE_URL,
   migrations: [migrationsDir],
+  ssl: true,
   cli: {
     migrationsDir: "src/migration"
   }
