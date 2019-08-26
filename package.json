@@ -7,10 +7,10 @@
     "start": "node index.js",
     "start:watch": "nodemon",
     "start:dev": "nf start -f Procfile.dev",
-    "migration:generate": "yarn ts-node ./node_modules/typeorm/cli.js migration:generate",
-    "migration:run": "yarn ts-node ./node_modules/typeorm/cli.js migration:run",
-    "migration:revert": "yarn ts-node ./node_modules/typeorm/cli.js migration:revert",
-    "lint": "yarn tslint -t codeFrame 'src/**/*.ts'"
+    "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate",
+    "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run",
+    "migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
+    "lint": "tslint -t codeFrame 'src/**/*.ts'"
   },
   "dependencies": {
     "@bugsnag/js": "^6.3.0",
