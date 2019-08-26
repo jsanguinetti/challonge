@@ -1,0 +1,4 @@
+runtime: nodejs10
+service: api-wrapper
+includes:
+  - env_variables.yaml

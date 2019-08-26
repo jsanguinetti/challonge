@@ -3,6 +3,11 @@ if (
   process.env.NEW_RELIC_LICENSE_KEY
 ) {
   require('newrelic');
+} else if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.GOOGLE_CLOUD_PROJECT
+) {
+  require('@google-cloud/trace-agent').start();
 }
 import * as env from 'dotenv';
 import 'reflect-metadata';

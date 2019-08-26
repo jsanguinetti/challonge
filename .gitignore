@@ -24,3 +24,5 @@ yarn-error.log
 .env
 
 .DS_Store
+
+env_variables.yaml
