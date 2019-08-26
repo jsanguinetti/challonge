@@ -15,7 +15,7 @@ export function initDocumentation(
     .addTag('tournaments')
     .addTag('matches')
     .addTag('ranking')
-    .addBearerAuth('api_key', 'header');
+    .addBearerAuth('api-key', 'header');
 
   if (initData.tag && initData.tag.length) {
     initData.tag.forEach(singleTag => {

@@ -13,8 +13,9 @@ export class ApiKeyGlobalGuard implements CanActivate {
 
   private requestApiKey(context: ExecutionContext): string {
     const req: Request = context.switchToHttp().getRequest();
-    if (req.headers.api_key)
-      return req.headers.api_key as string;
+    const apiKeyHeaderValue = req.headers.api_key || req.headers['api-key']
+    if (apiKeyHeaderValue)
+      return apiKeyHeaderValue as string;
     else {
       return '';
     }
