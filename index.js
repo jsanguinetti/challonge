@@ -1,3 +1,3 @@
-require('@google-cloud/debug-agent').start();
+process.env.TSNODE = true;
 require('ts-node/register');
 require('./src/main');

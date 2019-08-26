@@ -1,14 +1,17 @@
 if (
   process.env.NODE_ENV === 'production' &&
+  process.env.GOOGLE_CLOUD_PROJECT
+) {
+  require('@google-cloud/debug-agent').start({ allowExpressions: true });
+  require('@google-cloud/trace-agent').start();
+}
+if (
+  process.env.NODE_ENV === 'production' &&
   process.env.NEW_RELIC_LICENSE_KEY
 ) {
   require('newrelic');
-} else if (
-  process.env.NODE_ENV === 'production' &&
-  process.env.GOOGLE_CLOUD_PROJECT
-) {
-  require('@google-cloud/trace-agent').start();
 }
+
 import * as env from 'dotenv';
 import 'reflect-metadata';
 env.config();
@@ -45,7 +48,6 @@ async function bootstrap() {
     title: 'Challonge',
     endpoint: '/docs'
   });
-
   await app.listen(parseInt(process.env.PORT) || 3000);
 }
 
