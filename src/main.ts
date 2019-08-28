@@ -1,12 +1,5 @@
 if (
   process.env.NODE_ENV === 'production' &&
-  process.env.GOOGLE_CLOUD_PROJECT
-) {
-  require('@google-cloud/debug-agent').start({ allowExpressions: true });
-  require('@google-cloud/trace-agent').start();
-}
-if (
-  process.env.NODE_ENV === 'production' &&
   process.env.NEW_RELIC_LICENSE_KEY
 ) {
   require('newrelic');

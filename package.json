@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node dist/main.js",
     "start:watch": "nodemon",
-    "gcp-build": "tsc -p .",
-    "build": "npm run gcp-build",
+    "build": "tsc -p .",
     "start:dev": "nf start -f Procfile.dev",
     "migration:generate": "TSNODE=true ts-node ./node_modules/typeorm/cli.js migration:generate",
     "migration:run": "TSNODE=true ts-node ./node_modules/typeorm/cli.js migration:run",
@@ -16,8 +15,6 @@
   },
   "dependencies": {
     "@bugsnag/js": "^6.4.0",
-    "@google-cloud/debug-agent": "^4.0.3",
-    "@google-cloud/trace-agent": "^4.1.1",
     "@nestjs/common": "~>6.2.3",
     "@nestjs/core": "~>6.2.3",
     "@nestjs/microservices": "~>6.2.3",

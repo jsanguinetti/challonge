@@ -1,17 +1,15 @@
 # --- Installing stage
-FROM node:12.6 AS installer
+FROM node:10.16 AS installer
 
 WORKDIR /app
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
 COPY package.json ./
-COPY yarn.lock ./
-RUN yarn install
+COPY package-lock.json ./
+RUN npm install --only=production
 
+# --- Build stage
 # Running code under slim image (production part mostly)
-FROM node:12.6-alpine
+FROM node:10.16-alpine AS builder
 
 ## Clean new directory
 WORKDIR /app
@@ -20,9 +18,26 @@ WORKDIR /app
 COPY --from=installer /app/node_modules node_modules
 COPY --from=installer /app/package.json package.json
 COPY ./src src
-COPY ./index.js index.js
+COPY ./tsconfig.json tsconfig.json
+
+RUN npm run-script build
+
+
+# --- Run stage
+FROM node:10.16-alpine
+
+## Clean new directory
+WORKDIR /app
+
+## We just need node_modules
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/package.json package.json
+COPY ./dist dist
 COPY ./newrelic.js newrelic.js
 COPY ./ormconfig.js ormconfig.js
 COPY ./tsconfig.json tsconfig.json
 
-CMD [ "yarn", "start" ]
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+CMD [ "npm", "start" ]
