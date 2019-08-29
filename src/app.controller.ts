@@ -6,6 +6,6 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class AppController {
     @Get()
     public root(): string {
-        return 'Hello World!!';
+        return 'Hello World!';
     }
 }
