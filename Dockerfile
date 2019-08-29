@@ -32,7 +32,7 @@ WORKDIR /app
 ## We just need node_modules
 COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/package.json package.json
-COPY ./dist dist
+COPY --from=builder /app/dist dist
 COPY ./newrelic.js newrelic.js
 COPY ./ormconfig.js ormconfig.js
 COPY ./tsconfig.json tsconfig.json
@@ -40,4 +40,4 @@ COPY ./tsconfig.json tsconfig.json
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-CMD [ "npm", "start" ]
+ENTRYPOINT [ "node", "dist/main.js" ]
