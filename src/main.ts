@@ -1,9 +1,19 @@
 if (
-  process.env.NODE_ENV === 'production' &&
-  process.env.NEW_RELIC_LICENSE_KEY
+  process.env.NODE_ENV === 'production'
 ) {
-  require('newrelic');
+  if (process.env.NEW_RELIC_LICENSE_KEY) {
+    require('newrelic');
+  }
+  if (process.env.PROJECT_ID) {
+    try {
+      require('@google-cloud/trace-agent').start();
+    } catch (err) {
+      console.log('TRACE ERROR', err)
+    }
+  }
 }
+
+
 
 import * as env from 'dotenv';
 import 'reflect-metadata';

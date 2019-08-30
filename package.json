@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@bugsnag/js": "^6.4.0",
+    "@google-cloud/trace-agent": "^4.1.1",
     "@nestjs/common": "~>6.2.3",
     "@nestjs/core": "~>6.2.3",
     "@nestjs/microservices": "~>6.2.3",
